@@ -1,0 +1,24 @@
+# deps
+node_modules/
+.npm/
+
+# builds
+dist/
+build/
+.webpack/
+*.tsbuildinfo
+
+# env — nunca commitear secretos (criterio de salida Etapa 2)
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
