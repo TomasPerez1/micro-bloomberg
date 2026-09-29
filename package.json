@@ -1,0 +1,22 @@
+{
+  "name": "market-data-dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "description": "POC micro-fronts (Module Federation) & micro-services Nest + SQS",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "db:up": "docker compose up -d news_db markets_db",
+    "db:reset": "docker compose down -v && docker compose up -d news_db markets_db",
+    "up": "docker compose up --build",
+    "down": "docker compose down",
+    "markets:dev": "npm run start:dev -w international-markets",
+    "news:dev": "npm run start:dev -w news"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

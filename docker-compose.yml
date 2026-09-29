@@ -1,45 +1,83 @@
 services:
   news_db:
     image: postgres:16-alpine
-    container_name: news
+    container_name: news-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-news}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-news}
-      POSTGRES_DB: ${POSTGRES_DB:-news}
+      POSTGRES_USER: ${NEWS_DB_USER:-news}
+      POSTGRES_PASSWORD: ${NEWS_DB_PASSWORD:-news}
+      POSTGRES_DB: ${NEWS_DB_NAME:-news}
     ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      - "${NEWS_DB_PORT:-5433}:5432"
     volumes:
-      - ./services/news/db/init/:/docker-entrypoint-initdb.d/init.sql
+      - ./services/news/db/init:/docker-entrypoint-initdb.d:ro
+      - news_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-news} -d ${POSTGRES_DB:-news}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${NEWS_DB_USER:-news} -d ${NEWS_DB_NAME:-news}"]
       interval: 5s
       timeout: 5s
       retries: 12
+
   markets_db:
-      image: postgres:16-alpine
-      container_name: markets
-      restart: unless-stopped
-      environment:
-        POSTGRES_USER: ${POSTGRES_USER:-markets}
-        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-markets}
-        POSTGRES_DB: ${POSTGRES_DB:-markets}
-      ports:
-        - "${POSTGRES_PORT:-5434}:5432"
-      volumes:
-        - ./services/international-markets/db/init/:/docker-entrypoint-initdb.d/init.sql
-      healthcheck:
-        test:
-          [
-            "CMD-SHELL",
-            "pg_isready -U ${POSTGRES_USER:-markets} -d ${POSTGRES_DB:-markets}",
-          ]
-        interval: 5s
-        timeout: 5s
-        retries: 12
+    image: postgres:16-alpine
+    container_name: markets-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${MARKETS_DB_USER:-markets}
+      POSTGRES_PASSWORD: ${MARKETS_DB_PASSWORD:-markets}
+      POSTGRES_DB: ${MARKETS_DB_NAME:-markets}
+    ports:
+      - "${MARKETS_DB_PORT:-5434}:5432"
+    volumes:
+      - ./services/international-markets/db/init:/docker-entrypoint-initdb.d:ro
+      - markets_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${MARKETS_DB_USER:-markets} -d ${MARKETS_DB_NAME:-markets}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  markets_service:
+    build:
+      context: .
+      dockerfile: services/international-markets/Dockerfile
+    container_name: markets-service
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DATABASE_URL: postgres://${MARKETS_DB_USER:-markets}:${MARKETS_DB_PASSWORD:-markets}@markets_db:5432/${MARKETS_DB_NAME:-markets}
+    ports:
+      - "${MARKETS_SERVICE_PORT:-8081}:8080"
+    depends_on:
+      markets_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  news_service:
+    build:
+      context: .
+      dockerfile: services/news/Dockerfile
+    container_name: news-service
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DATABASE_URL: postgres://${NEWS_DB_USER:-news}:${NEWS_DB_PASSWORD:-news}@news_db:5432/${NEWS_DB_NAME:-news}
+    ports:
+      - "${NEWS_SERVICE_PORT:-8082}:8080"
+    depends_on:
+      news_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 volumes:
-  jh_pgdata:
+  news_pgdata:
+  markets_pgdata:
