@@ -14,7 +14,10 @@
     "up": "docker compose up --build",
     "down": "docker compose down",
     "markets:dev": "npm run start:dev -w international-markets",
-    "news:dev": "npm run start:dev -w news"
+    "news:dev": "npm run start:dev -w news",
+    "shell:dev": "npm start -w shell",
+    "markets-fe:dev": "npm start -w remote-markets",
+    "news-fe:dev": "npm start -w remote-news"
   },
   "engines": {
     "node": ">=22"
