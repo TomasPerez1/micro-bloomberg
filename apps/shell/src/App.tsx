@@ -1,4 +1,5 @@
-import { lazy, useState } from 'react';
+import { lazy } from 'react';
+import { usePreferredMarkets } from '@mbg/shared-state';
 import { RemoteBoundary } from './RemoteBoundary';
 
 // Async fecth to the remotes
@@ -6,13 +7,14 @@ const Markets = lazy(() => import('remoteMarkets/Markets'));
 const News = lazy(() => import('remoteNews/News'));
 
 export function App() {
-  const [selected] = useState<string[]>(['AR', 'BR']);
+
+  const selected = usePreferredMarkets();
 
   return (
     <div style={styles.page}>
       <header style={styles.header}>
         <h1 style={styles.brand}>Market Data Dashboard</h1>
-        <span style={styles.badge}>shell · :3000</span>
+        <span style={styles.badge}> ___Shell color blue___</span>
       </header>
 
       <div style={styles.grid}>
@@ -31,7 +33,7 @@ export function App() {
 const styles: Record<string, React.CSSProperties> = {
   page: {
     fontFamily: 'system-ui, -apple-system, sans-serif',
-    background: '#f4f6f8',
+    background: '#515cd8',
     minHeight: '100vh',
     padding: 24,
   },
@@ -46,8 +48,8 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0 
   },
   badge: { 
-    fontSize: 11, 
-    color: '#6b7680' 
+    fontSize: 14, 
+    color: 'black' 
   },
   grid: {
     display: 'grid',

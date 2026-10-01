@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react';
+import type { NewsDto } from '@mbg/contracts';
 
 const API_URL = 'http://localhost:8082';
 
-export interface NewsItem {
-  id: string;
-  title: string;
-  body: string;
-  source: string;
-  publishedAt: string | null;
-  marketIds: string[];
-}
+export type NewsItem = NewsDto;
 
 export interface NewsProps {
   markets?: string[];

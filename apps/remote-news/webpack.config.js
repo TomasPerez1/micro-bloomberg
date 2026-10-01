@@ -68,6 +68,10 @@ module.exports = {
           singleton: true,
           requiredVersion: deps.react,
         },
+        '@mbg/shared-state': {
+          singleton: true,
+          requiredVersion: false,
+        },
       },
     }),
     new HtmlWebpackPlugin({ template: './public/index.html' }),

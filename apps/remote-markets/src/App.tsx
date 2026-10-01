@@ -1,6 +1,5 @@
 import Markets from './markets/Markets';
 
-
 export function App() {
   return (
     <main style={{ fontFamily: 'system-ui, sans-serif', padding: 24, maxWidth: 900 }}>

@@ -1,24 +1,25 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
+import * as sharedState from '@mbg/shared-state';
+import { toggleMarket, usePreferredMarkets } from '@mbg/shared-state';
+import type { MarketDto } from '@mbg/contracts';
 
 //todo DELETE DEBUG
 // @ts-expect-error debug-only
 window.__marketsReact = React;
+// @ts-expect-error debug-only
+window.__marketsStore = sharedState;
 //todo DELETE DEBUG
 
 const API_URL = 'http://localhost:8081';
 
-export interface Market {
-  marketId: string;
-  name: string;
-  country: string;
-  currency: { code: string; name: string; symbol: string };
-}
-
 export default function Markets() {
-  const [markets, setMarkets] = useState<Market[]>([]);
+  const [markets, setMarkets] = useState<MarketDto[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+
+  const preferred = usePreferredMarkets();
 
   useEffect(() => {
     let cancelled = false;
@@ -26,7 +27,7 @@ export default function Markets() {
     fetch(`${API_URL}/markets`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json() as Promise<Market[]>;
+        return r.json() as Promise<MarketDto[]>;
       })
       .then((data) => {
         if (!cancelled) setMarkets(data);
@@ -49,9 +50,14 @@ export default function Markets() {
   return (
     <section style={styles.card}>
       <h2 style={styles.title}>Mercados internacionales</h2>
+      <p style={styles.hint}>
+        Tildá los mercados que te interesan. El remote de noticias se actualiza solo.
+      </p>
+
       <table style={styles.table}>
         <thead>
           <tr>
+            <th style={styles.th} />
             <th style={styles.th}>Mercado</th>
             <th style={styles.th}>País</th>
             <th style={styles.th}>Moneda</th>
@@ -60,6 +66,14 @@ export default function Markets() {
         <tbody>
           {markets.map((m) => (
             <tr key={m.marketId}>
+              <td style={styles.td}>
+                <input
+                  type="checkbox"
+                  checked={preferred.includes(m.marketId)}
+                  onChange={() => toggleMarket(m.marketId)}
+                  aria-label={`Seguir ${m.name}`}
+                />
+              </td>
               <td style={styles.td}>
                 <strong>{m.marketId}</strong> · {m.name}
               </td>
@@ -71,6 +85,10 @@ export default function Markets() {
           ))}
         </tbody>
       </table>
+
+      <p style={styles.selection}>
+        Seleccionados: <strong>{preferred.join(', ') || '(ninguno)'}</strong>
+      </p>
     </section>
   );
 }
@@ -82,8 +100,20 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 16,
     background: '#fff',
   },
-  title: { margin: '0 0 12px', fontSize: 16 },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: 14 },
+  title: { 
+    margin: '0 0 4px', 
+    fontSize: 16 
+  },
+  hint: { 
+    margin: '0 0 12px', 
+    fontSize: 12, 
+    color: '#6b7680' 
+  },
+  table: { 
+    width: '100%', 
+    borderCollapse: 'collapse', 
+    fontSize: 14 
+  },
   th: {
     textAlign: 'left',
     padding: '6px 8px',
@@ -92,6 +122,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   td: { padding: '6px 8px', borderBottom: '1px solid #eef1f4' },
+  selection: { 
+    marginTop: 12, 
+    marginBottom: 0, 
+    fontSize: 12, 
+    color: '#3c4a57' 
+  },
   muted: { color: '#6b7680' },
   error: { color: '#b4232a' },
 };

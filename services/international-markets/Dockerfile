@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY services/international-markets/package.json ./services/international-markets/
+COPY packages ./packages
 RUN npm ci
 
 COPY services/international-markets ./services/international-markets
@@ -15,6 +16,7 @@ ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
 COPY services/international-markets/package.json ./services/international-markets/
+COPY packages ./packages
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/services/international-markets/dist ./services/international-markets/dist

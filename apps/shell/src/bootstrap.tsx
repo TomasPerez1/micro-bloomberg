@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
+import * as sharedState from '@mbg/shared-state';
 import { App } from './App';
 
 
@@ -14,6 +15,8 @@ declare const __webpack_share_scopes__: Record<
 window.__shareScopes = __webpack_share_scopes__;
 // @ts-expect-error debug-only
 window.__shellReact = React;
+// @ts-expect-error debug-only
+window.__shellStore = sharedState;
 //todo Delete
 
 const container = document.getElementById('root');

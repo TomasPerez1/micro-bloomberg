@@ -1,0 +1,7 @@
+{
+  "name": "@mbg/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tipos que cruzan fronteras: endpoints HTTP y eventos de SQS. SOLO TIPOS.",
+  "types": "src/index.ts"
+}
